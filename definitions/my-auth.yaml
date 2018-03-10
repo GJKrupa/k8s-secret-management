@@ -1,16 +1,10 @@
-name: my-ssh-keys
+name: my-auth
 description: SSH keys for me
 values:
 - name: keys.private
   description: SSH private key for SFTP login
   type: ssh_private_key
   subtype: rsa
-- name: keys.public
-  description: SSH public key for SFTP login
-  type: ssh_public_key
-  from:
-  - secret: my-ssh-keys
-    value: keys.private
 - name: user.name
   type: username
   length: 32

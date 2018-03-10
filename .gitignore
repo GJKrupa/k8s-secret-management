@@ -1,3 +1,5 @@
+.idea/
+venv/
 .installed
 *.pyc
 /keyrings/live/pubring.gpg~

@@ -1,1 +1,2 @@
 click>=5.0
+ruamel.yaml>=0.15

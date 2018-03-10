@@ -1,25 +1,37 @@
 import click
 
+from lib.secrets import Secrets
+
+
+secrets = Secrets()
+
 
 @click.group()
 def main():
     pass
 
+
 @click.command(help="Generate or re-generate one or more values")
 def generate():
-    raise ValueError("Not implemented")
+    affected_secrets = secrets.generate()
+    for secret in affected_secrets:
+        print secret + " must be run into k8s"
+
 
 @click.command("set", help="Set the content of a non-generated value")
 def set_value():
-    raise ValueError("Not implemented")
+    raise NotImplementedError("Not implemented")
+
 
 @click.command(help="Check if secrets can be generated")
 def check():
-    raise ValueError("Not implemented")
+    raise NotImplementedError("Not implemented")
+
 
 @click.command(help="Export secrets to the terminal")
 def export():
-    raise ValueError("Not implemented")
+    raise NotImplementedError("Not implemented")
+
 
 @click.command(help="Run secrets into a Kubernetes environment")
 def run():

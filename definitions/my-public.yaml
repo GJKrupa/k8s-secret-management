@@ -1,0 +1,9 @@
+name: my-public
+description: SSH keys for me
+values:
+- name: keys.public
+  description: SSH public key for SFTP login
+  type: ssh_public_key
+  from:
+    secret: my-auth
+    value: keys.private
