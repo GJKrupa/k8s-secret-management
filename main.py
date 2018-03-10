@@ -12,10 +12,11 @@ def main():
 
 
 @click.command(help="Generate or re-generate one or more values")
-def generate():
-    affected_secrets = secrets.generate()
-    for secret in affected_secrets:
-        print secret + " must be run into k8s"
+@click.option("--namespace", "-n", required=True, help="k8s namespace")
+def generate(namespace):
+    affected = secrets.generate(namespace)
+    for secret in affected.keys():
+        print 'Secret ' + secret + ' has been generated and needs to be applied'
 
 
 @click.command("set", help="Set the content of a non-generated value")

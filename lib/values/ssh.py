@@ -1,20 +1,57 @@
+import json
+from os.path import join
+from subprocess import check_output
+
 from lib.values.base import BaseValue
+from lib.values.files import TempDir
+
+
+class SshKeyPair:
+
+    def __init__(self, codec):
+        self.codec = codec
+        pass
+
+    def create(self):
+        result = {}
+        with TempDir() as dir:
+            private_file = join(dir, 'id')
+            public_file = join(dir, 'id.pub')
+            check_output(['ssh-keygen', '-t', self.codec, '-f', private_file, '-N', ''])
+            with open(private_file, 'r') as stream:
+                result['private'] = "".join(stream.readlines())
+            with open(public_file, 'r') as stream:
+                result['public'] = "".join(stream.readlines())
+        return result
 
 
 class SshPrivateKey(BaseValue):
-    def __init__(self, definition):
-        super(self.__class__, self).__init__(definition)
+    def __init__(self, definition, parent):
+        super(self.__class__, self).__init__(definition, parent)
         self.type = definition['subtype']
 
-    def generate(self, lookup):
-        return {}
+    def filename(self, namespace):
+        return super(self.__class__, self).filename(namespace) + '.json'
+
+    def generate(self, namespace, lookup):
+        affected = {self.parent.name: True}
+        with self.value_file(namespace, 'w') as stream:
+            stream.write(json.dumps(SshKeyPair(self.type).create(), indent=4))
+        affected.update(lookup.references_to(self.parent.name))
+        return affected
+
+    def references(self, secret_name):
+        return False
 
 
 class SshPublicKey(BaseValue):
-    def __init__(self, definition):
-        super(self.__class__, self).__init__(definition)
+    def __init__(self, definition, parent):
+        super(self.__class__, self).__init__(definition, parent)
         self.ref_secret = definition['from']['secret']
         self.ref_value = definition['from']['value']
 
-    def generate(self, lookup):
-        return {self.ref_secret: True}
+    def references(self, secret_name):
+        return secret_name == self.ref_secret
+
+    def generate(self, namespace, lookup):
+        return {}
