@@ -19,7 +19,7 @@ class BaseValue(object):
         raise NotImplementedError("Abstract method")
 
     def filename(self, namespace):
-        return os.path.join("values", namespace, self.name)
+        return os.path.join("values", namespace, self.parent.name, self.name)
 
     def value_file(self, namespace, mode):
         return ValueFile(self.filename(namespace), mode)

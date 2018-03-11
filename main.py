@@ -1,7 +1,7 @@
 import click
+from click import BadParameter
 
 from lib.secrets import Secrets
-
 
 secrets = Secrets()
 
@@ -13,8 +13,12 @@ def main():
 
 @click.command(help="Generate or re-generate one or more values")
 @click.option("--namespace", "-n", required=True, help="k8s namespace")
-def generate(namespace):
-    affected = secrets.generate(namespace)
+@click.option("--secret", "-s", help="Secret name (optional)")
+@click.option("--value", "-v", help="Value name (optional)")
+def generate(namespace, secret, value):
+    if secret is None and value is not None:
+        raise BadParameter("Cannot specify value without secret")
+    affected = secrets.generate(namespace, secret, value)
     for secret in affected.keys():
         print 'Secret ' + secret + ' has been generated and needs to be applied'
 

@@ -2,6 +2,8 @@ import uuid
 
 from os import urandom
 
+from click import ClickException
+
 from lib.values.base import BaseValue
 
 LOWER = "abcdefghijklmnopqrstuvwxyz"
@@ -114,7 +116,7 @@ class Password(RandomString):
             self.palette = self.palette + definition['special']
 
         if self.palette == '':
-            raise ValueError('Password ' + self.name + ' in ' + self.parent.name + ' has no characteristics')
+            raise ClickException('Password ' + self.name + ' in ' + self.parent.name + ' has no characteristics')
 
     def get_initial(self):
         return self.palette

@@ -32,10 +32,11 @@ class Secret:
                 ValueFactory.get_value(value, self) for value in data['values'] if ValueFactory.supports(value)
             ]
 
-    def generate(self, namespace, lookup):
+    def generate(self, namespace, lookup, filter_value):
         affected = {}
         for value in self.values:
-            affected.update(value.generate(namespace, lookup))
+            if filter_value is None or filter_value==value.name:
+                affected.update(value.generate(namespace, lookup))
         return affected
 
 
@@ -49,8 +50,9 @@ class Secrets:
         for secret in self.secrets:
             self.lookup[secret.name] = secret
 
-    def generate(self, namespace):
+    def generate(self, namespace, filter_secret, filter_value):
         affected = {}
         for secret in self.secrets:
-            affected.update(secret.generate(namespace, self.lookup))
+            if filter_secret is None or secret.name==filter_secret:
+                affected.update(secret.generate(namespace, self.lookup, filter_value))
         return affected
