@@ -3,7 +3,7 @@ import os
 import shutil
 import tempfile
 from os.path import isfile
-from subprocess import check_call
+from subprocess import check_output
 
 MAX_FILE_SIZE = 128*1024
 
@@ -36,12 +36,11 @@ class WriteToFile:
         return self.fd
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if os.path.isfile(self.filename + '.gpg'):
-            check_call(["blackbox_edit_end", self.filename])
-        else:
-            print(["blackbox_register_new_file", self.filename])
-            check_call(["sh", "-c", "blackbox_register_new_file", self.filename])
         self.fd.close()
+        if os.path.isfile(self.filename + '.gpg'):
+            check_output(["sh", "-c", "blackbox_edit_end " + self.filename])
+        else:
+            check_output(["sh", "-c", "blackbox_register_new_file " + self.filename])
 
 
 class UpdateFile:
@@ -59,9 +58,9 @@ class UpdateFile:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if os.path.isfile(self.filename + '.gpg'):
-            check_call(["blackbox_edit_end", self.filename], shell=True)
+            check_output(["sh", "-c", "blackbox_edit_end " + self.filename])
         else:
-            check_call(["sh", "-c", "blackbox_register_new_file", self.filename], shell=True)
+            check_output(["sh", "-c", "blackbox_register_new_file " + self.filename])
         pass
 
 
@@ -76,7 +75,7 @@ class InspectFile:
         pass
 
     def exists(self):
-        return isfile(self.filename)
+        return isfile(self.filename + ".gpg")
 
 
 class ReadFile:
@@ -84,9 +83,10 @@ class ReadFile:
         self.filename = filename
 
     def __enter__(self):
+        check_output(["sh", "-c", "blackbox_edit_start " + self.filename])
         with open(self.filename, "rb") as stream:
             self.data = stream.read(MAX_FILE_SIZE)
         return self.data
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
+        os.remove(self.filename)
