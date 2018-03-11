@@ -19,6 +19,4 @@ values:
 - name: user.id
   type: uuid
 - name: keystore.jks
-  type: binary
 - name: keystore.password
-  type: text

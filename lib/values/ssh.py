@@ -35,13 +35,19 @@ class SshPrivateKey(BaseValue):
 
     def generate(self, namespace, lookup):
         affected = {self.parent.name: True}
-        with self.value_file(namespace, 'w') as stream:
+        with self.write_to_file(namespace, 'w') as stream:
             stream.write(json.dumps(SshKeyPair(self.type).create(), indent=4))
-        affected.update(lookup.references_to(self.parent.name))
+        affected.update(lookup.references_to(self.parent.name, self.name))
         return affected
 
-    def references(self, secret_name):
+    def references(self, secret_name, value_name):
         return False
+
+    def set_from_file(self, namespace, lookup, filename):
+        raise NotImplementedError("Not implemented")
+
+    def set_from_text(self, namespace, lookup, content):
+        raise NotImplementedError("Not implemented")
 
 
 class SshPublicKey(BaseValue):
@@ -50,8 +56,14 @@ class SshPublicKey(BaseValue):
         self.ref_secret = definition['from']['secret']
         self.ref_value = definition['from']['value']
 
-    def references(self, secret_name):
-        return secret_name == self.ref_secret
+    def references(self, secret_name, value_name):
+        return secret_name == self.ref_secret and value_name == self.ref_value
 
     def generate(self, namespace, lookup):
         return {}
+
+    def set_from_file(self, namespace, lookup, filename):
+        raise NotImplementedError("Not implemented")
+
+    def set_from_text(self, namespace, lookup, content):
+        raise NotImplementedError("Not implemented")

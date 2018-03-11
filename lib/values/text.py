@@ -19,11 +19,11 @@ class UUID(BaseValue):
         return super(self.__class__, self).filename(namespace) + '.txt'
 
     def generate(self, namespace, lookup):
-        with self.value_file(namespace, 'w') as stream:
+        with self.write_to_file(namespace, 'w') as stream:
             stream.write(str(uuid.uuid1()))
         return {self.parent.name: True}
 
-    def references(self, secret_name):
+    def references(self, secret_name, value_name):
         return False
 
 
@@ -62,12 +62,12 @@ class RandomString(BaseValue):
             if counter >= 50:
                 raise ValueError("Unable to generate " + self.name + " after 50 iterations")
 
-        with self.value_file(namespace, 'w') as stream:
+        with self.write_to_file(namespace, 'w') as stream:
             stream.write(result)
 
         return {self.parent.name: True}
 
-    def references(self, secret_name):
+    def references(self, secret_name, value_name):
         return False
 
 

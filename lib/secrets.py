@@ -12,11 +12,11 @@ class Lookup:
     def __setitem__(self, key, value):
         self.table[key] = value
 
-    def references_to(self, name):
+    def references_to(self, secret_name, value_name):
         result = {}
         for secret in self.table.values():
             for value in secret.values:
-                if value.references(name):
+                if value.references(secret_name, value_name):
                     result[secret.name] = True
         return result
 
@@ -39,6 +39,20 @@ class Secret:
                 affected.update(value.generate(namespace, lookup))
         return affected
 
+    def set_from_file(self, namespace, lookup, value_name, filename):
+        affected = {}
+        for value in self.values:
+            if value_name == value.name:
+                affected.update(value.set_from_file(namespace, lookup, filename))
+        return affected
+
+    def set_from_text(self, namespace, lookup, value_name, content):
+        affected = {}
+        for value in self.values:
+            if value_name == value.name:
+                affected.update(value.set_from_text(namespace, lookup, content))
+        return affected
+
 
 class Secrets:
     def __init__(self):
@@ -53,6 +67,20 @@ class Secrets:
     def generate(self, namespace, filter_secret, filter_value):
         affected = {}
         for secret in self.secrets:
-            if filter_secret is None or secret.name==filter_secret:
+            if filter_secret is None or secret.name == filter_secret:
                 affected.update(secret.generate(namespace, self.lookup, filter_value))
+        return affected
+
+    def set_from_file(self, namespace, secret_name, value_name, filename):
+        affected = {}
+        for secret in self.secrets:
+            if secret.name == secret_name:
+                affected.update(secret.set_from_file(namespace, self.lookup, value_name, filename))
+        return affected
+
+    def set_from_text(self, namespace, secret_name, value_name, content):
+        affected = {}
+        for secret in self.secrets:
+            if secret.name == secret_name:
+                affected.update(secret.set_from_text(namespace, self.lookup, value_name, content))
         return affected
