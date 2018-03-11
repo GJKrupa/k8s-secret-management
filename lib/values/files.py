@@ -3,7 +3,7 @@ import os
 import shutil
 import tempfile
 from os.path import isfile
-
+from subprocess import check_call
 
 MAX_FILE_SIZE = 128*1024
 
@@ -36,6 +36,11 @@ class WriteToFile:
         return self.fd
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        if os.path.isfile(self.filename + '.gpg'):
+            check_call(["blackbox_edit_end", self.filename])
+        else:
+            print(["blackbox_register_new_file", self.filename])
+            check_call(["sh", "-c", "blackbox_register_new_file", self.filename])
         self.fd.close()
 
 
@@ -53,6 +58,10 @@ class UpdateFile:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        if os.path.isfile(self.filename + '.gpg'):
+            check_call(["blackbox_edit_end", self.filename], shell=True)
+        else:
+            check_call(["sh", "-c", "blackbox_register_new_file", self.filename], shell=True)
         pass
 
 
