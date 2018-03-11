@@ -7,10 +7,11 @@ values:
   subtype: rsa
 - name: user.name
   type: username
-  length: 32
+  digits: true
+  length: 16
 - name: user.password
   type: password
-  length: 32
+  length: 64
   uppercase: true
   lowercase: true
   digits: true

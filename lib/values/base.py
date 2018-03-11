@@ -7,6 +7,7 @@ class BaseValue(object):
     def __init__(self, definition, parent):
         self.name = definition['name']
         self.parent = parent
+        self.definition = definition
 
     def generate(self, namespace, lookup):
         raise NotImplementedError("Abstract method")

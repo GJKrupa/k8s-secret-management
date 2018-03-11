@@ -27,11 +27,11 @@ class SshKeyPair:
 
 class SshPrivateKey(BaseValue):
     def __init__(self, definition, parent):
-        super(self.__class__, self).__init__(definition, parent)
+        super(SshPrivateKey, self).__init__(definition, parent)
         self.type = definition['subtype']
 
     def filename(self, namespace):
-        return super(self.__class__, self).filename(namespace) + '.json'
+        return super(SshPrivateKey, self).filename(namespace) + '.json'
 
     def generate(self, namespace, lookup):
         affected = {self.parent.name: True}
@@ -46,7 +46,7 @@ class SshPrivateKey(BaseValue):
 
 class SshPublicKey(BaseValue):
     def __init__(self, definition, parent):
-        super(self.__class__, self).__init__(definition, parent)
+        super(SshPublicKey, self).__init__(definition, parent)
         self.ref_secret = definition['from']['secret']
         self.ref_value = definition['from']['value']
 
