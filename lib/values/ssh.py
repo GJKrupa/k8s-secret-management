@@ -1,9 +1,10 @@
+import base64
 import json
 from os.path import join
 from subprocess import check_output
 
 from lib.values.base import BaseValue
-from lib.values.files import TempDir
+from lib.values.files import TempDir, ReadFile
 
 
 class SshKeyPair:
@@ -49,6 +50,11 @@ class SshPrivateKey(BaseValue):
     def set_from_text(self, namespace, lookup, content):
         raise NotImplementedError("Not implemented")
 
+    def to_base64(self, namespace, lookup):
+        with ReadFile(self.filename(namespace)) as input:
+            data = json.loads(input)
+            return base64.standard_b64encode(data['private'])
+
 
 class SshPublicKey(BaseValue):
     def __init__(self, definition, parent):
@@ -70,3 +76,9 @@ class SshPublicKey(BaseValue):
 
     def check(self, namespace, lookup):
         return lookup.find(self.ref_secret, self.ref_value).check(namespace, lookup)
+
+    def to_base64(self, namespace, lookup):
+        other = lookup.find(self.ref_secret, self.ref_value)
+        with ReadFile(other.filename(namespace)) as input:
+            data = json.loads(input)
+            return base64.standard_b64encode(data['public'])

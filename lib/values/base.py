@@ -1,9 +1,10 @@
+import base64
 import os
 
 from click import BadParameter
 from shutil import copyfile
 
-from lib.values.files import WriteToFile, UpdateFile, InspectFile
+from lib.values.files import WriteToFile, UpdateFile, InspectFile, ReadFile
 
 
 class BaseValue(object):
@@ -16,7 +17,8 @@ class BaseValue(object):
         raise NotImplementedError("Abstract method")
 
     def to_base64(self, namespace, lookup):
-        raise NotImplementedError("Abstract method")
+        with ReadFile(self.filename(namespace)) as input:
+            return base64.standard_b64encode(input)
 
     def references(self, secret_name, value_name):
         raise NotImplementedError("Abstract method")
@@ -25,7 +27,7 @@ class BaseValue(object):
         return os.path.join("values", namespace, self.parent.name, self.name)
 
     def write_to_file(self, namespace, mode):
-            return WriteToFile(self.filename(namespace), mode)
+        return WriteToFile(self.filename(namespace), mode)
 
     def update_file(self, namespace):
         return UpdateFile(self.filename(namespace))

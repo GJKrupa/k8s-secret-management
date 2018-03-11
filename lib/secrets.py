@@ -1,5 +1,7 @@
+import StringIO
 from os import listdir
 from os.path import isfile, join
+
 from ruamel.yaml import YAML
 
 from lib.values.factory import ValueFactory
@@ -63,6 +65,22 @@ class Secret:
                 affected.append(value.name)
         return {self.name: affected}
 
+    def to_yaml(self, namespace, lookup):
+        yaml = YAML()
+        data = {
+            "apiVersion": "v1",
+            "kind": "Secret",
+            "type": "Opaque",
+            "metadata": {
+                "name": self.name,
+                "namespace": namespace
+            },
+            "data": dict((value.name, value.to_base64(namespace, lookup)) for value in self.values)
+        }
+        stream = StringIO.StringIO()
+        yaml.dump(data, stream)
+        return stream.getvalue()
+
 
 class Secrets:
     def __init__(self):
@@ -101,3 +119,8 @@ class Secrets:
             if secret_name is None or secret.name == secret_name:
                 affected.update(secret.check(namespace, self.lookup))
         return affected
+
+    def to_yaml(self, namespace, secret_name):
+        return [
+            secret.to_yaml(namespace, self.lookup) for secret in self.secrets if secret_name is None or secret.name == secret_name
+        ]

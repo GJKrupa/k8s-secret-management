@@ -11,6 +11,16 @@ def print_affected(affected):
         print 'Secret ' + secret + ' has been generated and needs to be applied'
 
 
+def do_check(namespace, secret):
+    missing = secrets.check(namespace, secret)
+    any_missing = False
+    for secret in missing.keys():
+        for value in missing[secret]:
+            any_missing = True
+            print secret + ' / ' + value + ' is not set'
+    return any_missing
+
+
 @click.group()
 def main():
     pass
@@ -48,19 +58,18 @@ def set_value(secret, namespace, value, file, content):
 @click.option("--namespace", "-n", required=True, help="k8s namespace")
 @click.option("--secret", "-s", help="Secret name (Optional)")
 def check(namespace, secret):
-    missing = secrets.check(namespace, secret)
-    any_missing = False
-    for secret in missing.keys():
-        for value in missing[secret]:
-            any_missing = True
-            print secret + ' / ' + value + ' is not set'
-    if any_missing:
+    if do_check(namespace, secret):
         exit(1)
 
 
 @click.command(help="Export secrets to the terminal")
-def export():
-    raise NotImplementedError("Not implemented")
+@click.option("--namespace", "-n", required=True, help="k8s namespace")
+@click.option("--secret", "-s", help="Secret name (Optional)")
+def export(namespace, secret):
+    if do_check(namespace, secret):
+        exit(1)
+    yamls = secrets.to_yaml(namespace, secret)
+    print "---\n".join(yamls)
 
 
 @click.command(help="Run secrets into a Kubernetes environment")

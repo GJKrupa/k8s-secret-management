@@ -1,9 +1,11 @@
-import os
 import errno
+import os
 import shutil
 import tempfile
-
 from os.path import isfile
+
+
+MAX_FILE_SIZE = 128*1024
 
 
 class TempDir:
@@ -66,3 +68,16 @@ class InspectFile:
 
     def exists(self):
         return isfile(self.filename)
+
+
+class ReadFile:
+    def __init__(self, filename):
+        self.filename = filename
+
+    def __enter__(self):
+        with open(self.filename, "rb") as stream:
+            self.data = stream.read(MAX_FILE_SIZE)
+        return self.data
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
