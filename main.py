@@ -45,8 +45,17 @@ def set_value(secret, namespace, value, file, content):
 
 
 @click.command(help="Check if secrets can be generated")
-def check():
-    raise NotImplementedError("Not implemented")
+@click.option("--namespace", "-n", required=True, help="k8s namespace")
+@click.option("--secret", "-s", help="Secret name (Optional)")
+def check(namespace, secret):
+    missing = secrets.check(namespace, secret)
+    any_missing = False
+    for secret in missing.keys():
+        for value in missing[secret]:
+            any_missing = True
+            print secret + ' / ' + value + ' is not set'
+    if any_missing:
+        exit(1)
 
 
 @click.command(help="Export secrets to the terminal")

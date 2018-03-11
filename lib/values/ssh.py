@@ -67,3 +67,6 @@ class SshPublicKey(BaseValue):
 
     def set_from_text(self, namespace, lookup, content):
         raise NotImplementedError("Not implemented")
+
+    def check(self, namespace, lookup):
+        return lookup.find(self.ref_secret, self.ref_value).check(namespace, lookup)

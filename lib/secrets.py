@@ -20,6 +20,9 @@ class Lookup:
                     result[secret.name] = True
         return result
 
+    def find(self, secret_name, value_name):
+        return next(value for value in self.table[secret_name].values if value_name == value.name)
+
 
 class Secret:
     def __init__(self, filename):
@@ -53,6 +56,13 @@ class Secret:
                 affected.update(value.set_from_text(namespace, lookup, content))
         return affected
 
+    def check(self, namespace, lookup):
+        affected = []
+        for value in self.values:
+            if not(value.check(namespace, lookup)):
+                affected.append(value.name)
+        return {self.name: affected}
+
 
 class Secrets:
     def __init__(self):
@@ -83,4 +93,11 @@ class Secrets:
         for secret in self.secrets:
             if secret.name == secret_name:
                 affected.update(secret.set_from_text(namespace, self.lookup, value_name, content))
+        return affected
+
+    def check(self, namespace, secret_name):
+        affected = {}
+        for secret in self.secrets:
+            if secret_name is None or secret.name == secret_name:
+                affected.update(secret.check(namespace, self.lookup))
         return affected

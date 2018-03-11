@@ -3,7 +3,7 @@ import os
 from click import BadParameter
 from shutil import copyfile
 
-from lib.values.files import WriteToFile, UpdateFile
+from lib.values.files import WriteToFile, UpdateFile, InspectFile
 
 
 class BaseValue(object):
@@ -30,6 +30,9 @@ class BaseValue(object):
     def update_file(self, namespace):
         return UpdateFile(self.filename(namespace))
 
+    def inspect_file(self, namespace):
+        return InspectFile(self.filename(namespace))
+
     def set_from_file(self, namespace, lookup, filename):
         affected = {self.parent.name: True}
         affected.update(lookup.references_to(self.parent.name, self.name))
@@ -45,3 +48,7 @@ class BaseValue(object):
         with self.write_to_file(namespace, 'w') as stream:
             stream.write(content)
         return affected
+
+    def check(self, namespace, lookup):
+        with self.inspect_file(namespace) as data:
+            return data.exists()

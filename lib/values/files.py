@@ -3,6 +3,8 @@ import errno
 import shutil
 import tempfile
 
+from os.path import isfile
+
 
 class TempDir:
     def __init__(self):
@@ -50,3 +52,17 @@ class UpdateFile:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
+
+
+class InspectFile:
+    def __init__(self, filename):
+        self.filename = filename
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+    def exists(self):
+        return isfile(self.filename)
