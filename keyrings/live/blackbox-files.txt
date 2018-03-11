@@ -1,4 +1,5 @@
 values/one-value/my-auth/keys.private.json
 values/test-ns/my-auth/keys.private.json
+values/test-ns/my-auth/user.id.txt
 values/test-ns/my-auth/user.name.txt
 values/test-ns/my-auth/user.password.txt
